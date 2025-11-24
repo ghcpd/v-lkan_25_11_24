@@ -97,10 +97,26 @@ class UserDatabase:
             if u['id'] == user_id:
                 return u
         return None
+
+    @staticmethod
+    def get_user_by_email(email):
+        users = UserDatabase.load_data()
+        if not email:
+            return None
+        email_lower = email.lower()
+        for u in users:
+            if u.get('email') and u['email'].lower() == email_lower:
+                return u
+        return None
     
     @staticmethod
     def create_user(name, email, role):
         users = UserDatabase.load_data()
+
+        # Prevent creating duplicate users with the same email
+        if UserDatabase.get_user_by_email(email):
+            raise ValueError('A user with that email already exists')
+
         new_id = max([u['id'] for u in users], default=0) + 1
         new_user = {'id': new_id, 'name': name, 'email': email, 'role': role}
         users.append(new_user)

@@ -18,6 +18,13 @@ A modern, responsive Flask-based web application for managing users with a beaut
 - **Delete Users**: Remove users with confirmation dialog
 - **Export Data**: Download user data as CSV or JSON files
 
+---
+
+### Recent Fixes (Nov 2025)
+- **Prevent duplicate users**: User creation now enforces unique email addresses (server-side validation) to prevent duplicate entries.
+- **Export dropdown overlay**: The export dropdown menu is no longer clipped — the header now allows overflow and the dropdown uses a higher z-index so it's fully visible.
+- **Tests added**: Unit tests were added to cover duplicate user creation and the UI template check for the dropdown fix.
+
 ### User Interface
 - **Modern Design**: Gradient backgrounds, smooth animations, and professional styling
 - **Responsive Layout**: Works seamlessly on desktop, tablet, and mobile devices
