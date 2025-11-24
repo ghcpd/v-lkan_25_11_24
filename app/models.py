@@ -2,8 +2,12 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
+import threading
 
 DATA_FILE = Path(__file__).parent.parent / 'data' / 'users.json'
+
+# Add a lock to prevent concurrent writes
+_db_lock = threading.Lock()
 
 class User:
     def __init__(self, id, name, email, role):
@@ -100,12 +104,24 @@ class UserDatabase:
     
     @staticmethod
     def create_user(name, email, role):
-        users = UserDatabase.load_data()
-        new_id = max([u['id'] for u in users], default=0) + 1
-        new_user = {'id': new_id, 'name': name, 'email': email, 'role': role}
-        users.append(new_user)
-        UserDatabase.save_data(users)
-        return new_user
+        """Create a new user with thread-safe duplicate prevention"""
+        with _db_lock:
+            users = UserDatabase.load_data()
+            
+            # Check if email already exists (prevent duplicates)
+            for u in users:
+                if u['email'].lower() == email.lower():
+                    raise ValueError(f"Email '{email}' already exists")
+            
+            # Get next ID
+            new_id = max([u['id'] for u in users], default=0) + 1
+            new_user = {'id': new_id, 'name': name, 'email': email, 'role': role}
+            
+            # Add and save
+            users.append(new_user)
+            UserDatabase.save_data(users)
+            
+            return new_user
     
     @staticmethod
     def update_user(user_id, name=None, email=None, role=None):

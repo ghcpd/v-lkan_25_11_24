@@ -127,15 +127,15 @@
                         <button onclick="openAddUserModal()" class="btn-primary text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl">
                             <i class="fas fa-plus"></i> Add User
                         </button>
-                        <div class="relative group">
-                            <button class="btn-secondary text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl">
+                        <div style="position: relative;" id="exportDropdown">
+                            <button onclick="toggleExportDropdown()" class="btn-secondary text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all" id="exportBtn">
                                 <i class="fas fa-download"></i> Export
                             </button>
-                            <div class="hidden group-hover:block absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10">
-                                <button onclick="exportUsers('json')" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-purple-50 flex items-center gap-2">
+                            <div id="exportMenu" class="hidden" style="position: fixed; background: white; border-radius: 0.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border: 1px solid #e5e7eb; z-index: 9999; width: 200px; top: 0; left: 0;">
+                                <button onclick="exportUsers('json'); closeExportDropdown()" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-purple-50 flex items-center gap-2 transition-colors" style="border-radius: 0.5rem 0.5rem 0 0;">
                                     <i class="fas fa-file-json text-purple-600"></i> Export as JSON
                                 </button>
-                                <button onclick="exportUsers('csv')" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-purple-50 border-t flex items-center gap-2">
+                                <button onclick="exportUsers('csv'); closeExportDropdown()" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-purple-50 border-t border-gray-200 flex items-center gap-2 transition-colors" style="border-radius: 0 0 0.5rem 0.5rem;">
                                     <i class="fas fa-file-csv text-green-600"></i> Export as CSV
                                 </button>
                             </div>

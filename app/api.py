@@ -56,12 +56,16 @@ def create_user():
         if errors:
             return jsonify({'error': '; '.join(errors)}), 400
         
-        user = UserDatabase.create_user(
-            name=data['name'],
-            email=data['email'],
-            role=data['role']
-        )
-        return jsonify(user), 201
+        try:
+            user = UserDatabase.create_user(
+                name=data['name'],
+                email=data['email'],
+                role=data['role']
+            )
+            return jsonify(user), 201
+        except ValueError as e:
+            # Handle duplicate email or other value errors
+            return jsonify({'error': str(e)}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
