@@ -11,6 +11,7 @@ let editingUserId = null;
 document.addEventListener('DOMContentLoaded', () => {
     loadUsers();
     setupEventListeners();
+    setupExportMenu();
 });
 
 function setupEventListeners() {
@@ -309,8 +310,45 @@ function closeDeleteModal() {
 }
 
 // Export functionality
+function toggleExportMenu() {
+    const menu = document.getElementById('exportMenu');
+    const button = document.getElementById('exportBtn');
+    
+    if (menu.classList.contains('hidden')) {
+        // Calculate button position
+        const rect = button.getBoundingClientRect();
+        
+        // Position menu below button, aligned to the right
+        menu.style.position = 'fixed';
+        menu.style.top = (rect.bottom + 8) + 'px';
+        menu.style.right = (window.innerWidth - rect.right) + 'px';
+        menu.style.left = 'auto';
+        
+        menu.classList.remove('hidden');
+    } else {
+        menu.classList.add('hidden');
+    }
+}
+
+function setupExportMenu() {
+    // Close export menu when clicking outside
+    document.addEventListener('click', (event) => {
+        const exportBtn = document.getElementById('exportBtn');
+        const exportMenu = document.getElementById('exportMenu');
+        
+        if (exportBtn && exportMenu && 
+            !exportBtn.contains(event.target) && 
+            !exportMenu.contains(event.target)) {
+            exportMenu.classList.add('hidden');
+        }
+    });
+}
+
 async function exportUsers(format) {
     try {
+        // Close the export menu
+        document.getElementById('exportMenu').classList.add('hidden');
+        
         window.location.href = `/api/users/export?format=${format}`;
         showSuccess(`Exporting users as ${format.toUpperCase()}...`);
     } catch (error) {
