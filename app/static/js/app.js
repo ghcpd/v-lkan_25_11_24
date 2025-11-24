@@ -6,6 +6,7 @@ let currentSort = 'id';
 let currentOrder = 'asc';
 let deleteTargetId = null;
 let editingUserId = null;
+let isSubmitting = false;  // Prevent duplicate submissions
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -194,16 +195,24 @@ function nextPage() {
 // Modal operations
 function openAddUserModal() {
     editingUserId = null;
+    isSubmitting = false;
     document.getElementById('userId').value = '';
     document.getElementById('userName').value = '';
     document.getElementById('userEmail').value = '';
     document.getElementById('userRole').value = '';
     document.getElementById('modalTitle').textContent = 'Add New User';
+    // Re-enable submit button
+    const submitBtn = document.querySelector('#userForm button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+    }
     document.getElementById('userModal').classList.remove('hidden');
 }
 
 async function openEditUserModal(userId) {
     editingUserId = userId;
+    isSubmitting = false;
     const response = await fetch(`/api/users/${userId}`);
     
     if (!response.ok) {
@@ -222,12 +231,26 @@ async function openEditUserModal(userId) {
     document.getElementById('userEmail').value = userData.email;
     document.getElementById('userRole').value = userData.role;
     document.getElementById('modalTitle').textContent = `Edit User: ${userData.name}`;
+    // Reset submit button
+    const submitBtn = document.querySelector('#userForm button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '✓ Update User';
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+    }
     document.getElementById('userModal').classList.remove('hidden');
 }
 
-// Note: We need to add a GET endpoint for single user - let me update the API
 async function saveUser(event) {
     event.preventDefault();
+
+    const submitBtn = document.querySelector('#userForm button[type="submit"]');
+    
+    // Prevent duplicate submissions - check multiple times
+    if (isSubmitting || (submitBtn && submitBtn.disabled)) {
+        return;
+    }
 
     const userId = document.getElementById('userId').value;
     const name = document.getElementById('userName').value;
@@ -238,6 +261,16 @@ async function saveUser(event) {
         showError('All fields are required');
         return;
     }
+
+    // Immediately disable submit button AND set flag
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = userId ? '⏳ Updating...' : '⏳ Creating...';
+        submitBtn.style.opacity = '0.6';
+        submitBtn.style.cursor = 'not-allowed';
+    }
+    
+    isSubmitting = true;
 
     try {
         let response;
@@ -258,21 +291,48 @@ async function saveUser(event) {
         if (!response.ok) {
             const error = await response.json();
             showError(error.error || 'Failed to save user');
+            // Reset button on error
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = userId ? '✓ Update User' : '✓ Save User';
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            }
+            isSubmitting = false;
             return;
         }
 
         showSuccess(userId ? 'User updated successfully' : 'User created successfully');
+        isSubmitting = false;
+        await new Promise(resolve => setTimeout(resolve, 500)); // Wait before closing
         closeUserModal();
         currentPage = 1;
-        loadUsers();
+        await loadUsers();
     } catch (error) {
         showError('Network error: ' + error.message);
+        // Reset button on error
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = userId ? '✓ Update User' : '✓ Save User';
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+        }
+        isSubmitting = false;
     }
 }
 
 function closeUserModal() {
     document.getElementById('userModal').classList.add('hidden');
     editingUserId = null;
+    isSubmitting = false;
+    // Reset submit button
+    const submitBtn = document.querySelector('#userForm button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '✓ Save User';
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+    }
 }
 
 function openDeleteModal(userId) {
@@ -309,6 +369,36 @@ function closeDeleteModal() {
 }
 
 // Export functionality
+function toggleExportDropdown() {
+    const menu = document.getElementById('exportMenu');
+    const btn = document.getElementById('exportBtn');
+    
+    if (menu.classList.contains('hidden')) {
+        // Show menu
+        menu.classList.remove('hidden');
+        
+        // Position the menu using fixed positioning
+        const rect = btn.getBoundingClientRect();
+        menu.style.top = (rect.bottom + 8) + 'px';
+        menu.style.left = (rect.right - 200) + 'px';
+    } else {
+        menu.classList.add('hidden');
+    }
+}
+
+function closeExportDropdown() {
+    const menu = document.getElementById('exportMenu');
+    menu.classList.add('hidden');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    const dropdown = document.getElementById('exportDropdown');
+    if (dropdown && !dropdown.contains(e.target)) {
+        closeExportDropdown();
+    }
+});
+
 async function exportUsers(format) {
     try {
         window.location.href = `/api/users/export?format=${format}`;
