@@ -18,6 +18,10 @@ A modern, responsive Flask-based web application for managing users with a beaut
 - **Delete Users**: Remove users with confirmation dialog
 - **Export Data**: Download user data as CSV or JSON files
 
+Fixes in this release:
+- Prevent duplicate user creations by enforcing unique emails (server-side) and disabling submit while processing (client-side)
+- Fix export dropdown UI to ensure the menu is visible and not obscured by other elements
+
 ### User Interface
 - **Modern Design**: Gradient backgrounds, smooth animations, and professional styling
 - **Responsive Layout**: Works seamlessly on desktop, tablet, and mobile devices
@@ -75,6 +79,20 @@ Open your browser and navigate to:
 ```
 http://localhost:5000
 ```
+
+### Run & Verify
+- Run unit tests:
+  ```bash
+  D:\Downloads\oswe-prime\v-lkan_25_11_24\venv\Scripts\python.exe -m pytest tests/ -q
+  ```
+- Start the dev server:
+  ```bash
+  D:\Downloads\oswe-prime\v-lkan_25_11_24\venv\Scripts\python.exe run.py
+  ```
+- Verify the web app responds:
+  ```bash
+  curl -I http://127.0.0.1:5000
+  ```
 
 ---
 
@@ -195,6 +213,8 @@ Content-Type: application/json
 - `201`: User created successfully
 - `400`: Invalid input
 - `500`: Server error
+
+**Note:** Creating a user with an email that already exists will return `400` and the user will not be duplicated.
 
 ---
 

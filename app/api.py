@@ -56,11 +56,17 @@ def create_user():
         if errors:
             return jsonify({'error': '; '.join(errors)}), 400
         
+        # Check if email already exists to avoid duplicates
+        if UserDatabase.get_user_by_email(data['email']):
+            return jsonify({'error': 'User with this email already exists'}), 400
+
         user = UserDatabase.create_user(
             name=data['name'],
             email=data['email'],
             role=data['role']
         )
+        if not user:
+            return jsonify({'error': 'User could not be created (duplicate or invalid data)'}), 400
         return jsonify(user), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500

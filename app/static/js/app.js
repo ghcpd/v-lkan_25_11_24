@@ -6,6 +6,7 @@ let currentSort = 'id';
 let currentOrder = 'asc';
 let deleteTargetId = null;
 let editingUserId = null;
+let isSubmitting = false;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -240,6 +241,10 @@ async function saveUser(event) {
     }
 
     try {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        const submitBtn = document.querySelector('#userForm [type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
         let response;
         if (userId) {
             response = await fetch(`/api/users/${userId}`, {
@@ -267,6 +272,11 @@ async function saveUser(event) {
         loadUsers();
     } catch (error) {
         showError('Network error: ' + error.message);
+    }
+    finally {
+        isSubmitting = false;
+        const submitBtn = document.querySelector('#userForm [type="submit"]');
+        if (submitBtn) submitBtn.disabled = false;
     }
 }
 
@@ -317,6 +327,39 @@ async function exportUsers(format) {
         showError('Failed to export users: ' + error.message);
     }
 }
+
+    // Floating export dropdown UI helpers
+    function toggleExportDropdown(event) {
+        event.stopPropagation();
+        const btn = document.getElementById('exportBtn');
+        const dropdown = document.getElementById('exportDropdown');
+        if (!btn || !dropdown) return;
+        const rect = btn.getBoundingClientRect();
+        // Position dropdown below the button
+        dropdown.style.left = `${rect.left}px`;
+        dropdown.style.top = `${rect.bottom + 6}px`;
+        dropdown.classList.toggle('hidden');
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', (!expanded).toString());
+    }
+
+    function hideExportDropdown() {
+        const dropdown = document.getElementById('exportDropdown');
+        const btn = document.getElementById('exportBtn');
+        if (dropdown && !dropdown.classList.contains('hidden')) dropdown.classList.add('hidden');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+
+    // Hide the export dropdown when clicking anywhere else
+    document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('exportDropdown');
+        const btn = document.getElementById('exportBtn');
+        if (!dropdown || !btn) return;
+        if (e.target === btn || btn.contains(e.target)) return;
+        if (!dropdown.classList.contains('hidden') && !dropdown.contains(e.target)) {
+            hideExportDropdown();
+        }
+    });
 
 // UI helpers
 function showLoading(show) {
