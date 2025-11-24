@@ -115,7 +115,7 @@
     <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto">
             <!-- Header -->
-            <div class="glass-effect rounded-2xl shadow-2xl p-8 mb-8">
+            <div class="glass-effect rounded-2xl shadow-2xl p-8 mb-8 overflow-visible relative">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -127,18 +127,11 @@
                         <button onclick="openAddUserModal()" class="btn-primary text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl">
                             <i class="fas fa-plus"></i> Add User
                         </button>
-                        <div class="relative group">
-                            <button class="btn-secondary text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl">
+                        <div class="relative group overflow-visible">
+                            <button id="exportBtn" onclick="toggleExportDropdown(event)" class="btn-secondary text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl" aria-expanded="false">
                                 <i class="fas fa-download"></i> Export
                             </button>
-                            <div class="hidden group-hover:block absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10">
-                                <button onclick="exportUsers('json')" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-purple-50 flex items-center gap-2">
-                                    <i class="fas fa-file-json text-purple-600"></i> Export as JSON
-                                </button>
-                                <button onclick="exportUsers('csv')" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-purple-50 border-t flex items-center gap-2">
-                                    <i class="fas fa-file-csv text-green-600"></i> Export as CSV
-                                </button>
-                            </div>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -300,6 +293,15 @@
         </div>
     </div>
 
+    <!-- Floating export dropdown placed directly under body to avoid clipping -->
+    <div id="exportDropdown" class="hidden fixed bg-white rounded-lg shadow-xl overflow-visible z-60" aria-label="export-dropdown">
+        <button onclick="exportUsers('json');hideExportDropdown()" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-purple-50 flex items-center gap-2">
+            <i class="fas fa-file-json text-purple-600"></i> Export as JSON
+        </button>
+        <button onclick="exportUsers('csv');hideExportDropdown()" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-purple-50 border-t flex items-center gap-2">
+            <i class="fas fa-file-csv text-green-600"></i> Export as CSV
+        </button>
+    </div>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
