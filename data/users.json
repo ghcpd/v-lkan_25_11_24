@@ -1,20 +1,14 @@
 [
   {
     "id": 1,
-    "name": "Updated User",
-    "email": "updated@example.com",
-    "role": "Manager"
+    "name": "Test User 1",
+    "email": "test1@example.com",
+    "role": "Admin"
   },
   {
     "id": 2,
     "name": "Test User 2",
     "email": "test2@example.com",
     "role": "User"
-  },
-  {
-    "id": 3,
-    "name": "Test User 3",
-    "email": "test3@example.com",
-    "role": "Manager"
   }
 ]

@@ -56,12 +56,15 @@ def create_user():
         if errors:
             return jsonify({'error': '; '.join(errors)}), 400
         
-        user = UserDatabase.create_user(
-            name=data['name'],
-            email=data['email'],
-            role=data['role']
-        )
-        return jsonify(user), 201
+        try:
+            user = UserDatabase.create_user(
+                name=data['name'],
+                email=data['email'],
+                role=data['role']
+            )
+            return jsonify(user), 201
+        except ValueError as ve:
+            return jsonify({'error': str(ve)}), 409
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -91,13 +94,16 @@ def update_user(user_id):
             if errors:
                 return jsonify({'error': '; '.join(errors)}), 400
         
-        user = UserDatabase.update_user(
-            user_id,
-            name=data.get('name'),
-            email=data.get('email'),
-            role=data.get('role')
-        )
-        return jsonify(user), 200
+        try:
+            user = UserDatabase.update_user(
+                user_id,
+                name=data.get('name'),
+                email=data.get('email'),
+                role=data.get('role')
+            )
+            return jsonify(user), 200
+        except ValueError as ve:
+            return jsonify({'error': str(ve)}), 409
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

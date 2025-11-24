@@ -6,6 +6,8 @@ let currentSort = 'id';
 let currentOrder = 'asc';
 let deleteTargetId = null;
 let editingUserId = null;
+let isSaving = false;
+let exportMenuOpen = false;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -31,6 +33,35 @@ function setupEventListeners() {
         currentOrder = document.getElementById('sortOrder').value;
         loadUsers();
     });
+
+    // Close export menu on click outside
+    document.addEventListener('click', (event) => {
+        const menu = document.getElementById('exportMenu');
+        const trigger = event.target.closest('.export-dropdown');
+        if (!menu) return;
+        if (!trigger && exportMenuOpen) {
+            menu.classList.add('hidden');
+            setExportMenuExpanded(false);
+        }
+    });
+}
+
+function toggleExportMenu(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const menu = document.getElementById('exportMenu');
+    if (!menu) return;
+    exportMenuOpen = menu.classList.contains('hidden');
+    menu.classList.toggle('hidden');
+    setExportMenuExpanded(!menu.classList.contains('hidden'));
+}
+
+function setExportMenuExpanded(expanded) {
+    const triggerBtn = document.querySelector('.export-dropdown > button');
+    if (triggerBtn) {
+        triggerBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    }
+    exportMenuOpen = expanded;
 }
 
 function debounce(func, wait) {
@@ -229,6 +260,15 @@ async function openEditUserModal(userId) {
 async function saveUser(event) {
     event.preventDefault();
 
+    if (isSaving) return;
+    isSaving = true;
+
+    const saveBtn = document.querySelector('#userForm button[type="submit"]');
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+
     const userId = document.getElementById('userId').value;
     const name = document.getElementById('userName').value;
     const email = document.getElementById('userEmail').value;
@@ -267,6 +307,12 @@ async function saveUser(event) {
         loadUsers();
     } catch (error) {
         showError('Network error: ' + error.message);
+    } finally {
+        isSaving = false;
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
     }
 }
 
