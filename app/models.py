@@ -39,6 +39,14 @@ class User:
 
 class UserDatabase:
     @staticmethod
+    def get_user_by_email(email):
+        users = UserDatabase.load_data()
+        email_lower = email.lower()
+        for u in users:
+            if u.get('email', '').lower() == email_lower:
+                return u
+        return None
+    @staticmethod
     def init_db():
         DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
         if not DATA_FILE.exists():
@@ -101,6 +109,9 @@ class UserDatabase:
     @staticmethod
     def create_user(name, email, role):
         users = UserDatabase.load_data()
+        # Prevent duplicate emails (case-insensitive)
+        if any(u.get('email', '').lower() == email.lower() for u in users):
+            raise ValueError(f"User with email '{email}' already exists")
         new_id = max([u['id'] for u in users], default=0) + 1
         new_user = {'id': new_id, 'name': name, 'email': email, 'role': role}
         users.append(new_user)
@@ -112,6 +123,11 @@ class UserDatabase:
         users = UserDatabase.load_data()
         for u in users:
             if u['id'] == user_id:
+                # Prevent duplicate email when updating
+                if email is not None:
+                    email_lower = email.lower()
+                    if any(other.get('email', '').lower() == email_lower and other['id'] != user_id for other in users):
+                        raise ValueError(f"User with email '{email}' already exists")
                 if name is not None:
                     u['name'] = name
                 if email is not None:
