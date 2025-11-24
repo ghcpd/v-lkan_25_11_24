@@ -117,6 +117,20 @@ class TestUserManagementAPI(unittest.TestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 400)
+
+    def test_create_user_duplicate_email(self):
+        """Test creating a user with duplicate email should fail"""
+        response = self.client.post('/api/users',
+            data=json.dumps({
+                'name': 'Duplicate User',
+                'email': 'test1@example.com',
+                'role': 'User'
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.data)
+        self.assertIn('error', data)
     
     # PUT /api/users/<id> tests
     def test_update_user_success(self):

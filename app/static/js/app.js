@@ -45,6 +45,43 @@ function debounce(func, wait) {
     };
 }
 
+// Toggle export menu on click
+function toggleExportMenu(event) {
+    event.stopPropagation();
+    const menu = document.getElementById('exportMenu');
+    if (!menu) return;
+    const btn = document.getElementById('exportToggleBtn');
+    if (!btn) return;
+
+    if (menu.classList.contains('hidden')) {
+        // Show and move to body to avoid clipping by overflow/stacking contexts
+        menu.classList.remove('hidden');
+        if (menu.parentElement !== document.body) {
+            document.body.appendChild(menu);
+        }
+        menu.style.position = 'fixed';
+        const rect = btn.getBoundingClientRect();
+        // Make sure the menu is visible before measuring width
+        menu.style.top = (rect.bottom + 8) + 'px';
+        // Align right edges
+        const width = menu.offsetWidth || 200;
+        menu.style.left = Math.max(8, rect.right - width) + 'px';
+        menu.style.zIndex = '99999';
+    } else {
+        menu.classList.add('hidden');
+    }
+}
+
+// Close export menu when clicking outside
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('exportMenu');
+    const toggleBtn = document.getElementById('exportToggleBtn');
+    if (!menu || !toggleBtn) return;
+    if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !toggleBtn.contains(e.target)) {
+        menu.classList.add('hidden');
+    }
+});
+
 // API calls
 async function loadUsers() {
     showLoading(true);
@@ -239,6 +276,12 @@ async function saveUser(event) {
         return;
     }
 
+    // Prevent multiple simultaneous submissions
+    if (window.isSubmitting) return;
+    window.isSubmitting = true;
+    const saveBtn = document.querySelector('#userForm button[type="submit"]');
+    if (saveBtn) saveBtn.disabled = true;
+
     try {
         let response;
         if (userId) {
@@ -267,6 +310,9 @@ async function saveUser(event) {
         loadUsers();
     } catch (error) {
         showError('Network error: ' + error.message);
+    } finally {
+        window.isSubmitting = false;
+        if (saveBtn) saveBtn.disabled = false;
     }
 }
 

@@ -101,6 +101,11 @@ class UserDatabase:
     @staticmethod
     def create_user(name, email, role):
         users = UserDatabase.load_data()
+
+        # Prevent creating duplicate users by email (case-insensitive)
+        if any(u['email'].lower() == email.lower() for u in users):
+            raise ValueError('A user with this email already exists')
+
         new_id = max([u['id'] for u in users], default=0) + 1
         new_user = {'id': new_id, 'name': name, 'email': email, 'role': role}
         users.append(new_user)
