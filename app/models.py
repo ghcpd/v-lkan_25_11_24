@@ -101,6 +101,12 @@ class UserDatabase:
     @staticmethod
     def create_user(name, email, role):
         users = UserDatabase.load_data()
+        
+        # Check for duplicate email
+        for user in users:
+            if user['email'].lower() == email.lower():
+                raise ValueError(f"User with email '{email}' already exists")
+        
         new_id = max([u['id'] for u in users], default=0) + 1
         new_user = {'id': new_id, 'name': name, 'email': email, 'role': role}
         users.append(new_user)
@@ -110,6 +116,13 @@ class UserDatabase:
     @staticmethod
     def update_user(user_id, name=None, email=None, role=None):
         users = UserDatabase.load_data()
+        
+        # Check for duplicate email if email is being updated
+        if email is not None:
+            for u in users:
+                if u['id'] != user_id and u['email'].lower() == email.lower():
+                    raise ValueError(f"User with email '{email}' already exists")
+        
         for u in users:
             if u['id'] == user_id:
                 if name is not None:
