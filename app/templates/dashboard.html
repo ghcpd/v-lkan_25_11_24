@@ -127,11 +127,11 @@
                         <button onclick="openAddUserModal()" class="btn-primary text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl">
                             <i class="fas fa-plus"></i> Add User
                         </button>
-                        <div class="relative group">
-                            <button class="btn-secondary text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl">
+                        <div class="relative group" id="exportGroup" style="overflow:visible; z-index:9999;">
+                            <button id="exportToggleBtn" onclick="toggleExportMenu(event)" class="btn-secondary text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl">
                                 <i class="fas fa-download"></i> Export
                             </button>
-                            <div class="hidden group-hover:block absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10">
+                            <div id="exportMenu" class="hidden w-48 bg-white rounded-lg shadow-xl" style="overflow:visible;">
                                 <button onclick="exportUsers('json')" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-purple-50 flex items-center gap-2">
                                     <i class="fas fa-file-json text-purple-600"></i> Export as JSON
                                 </button>
@@ -300,6 +300,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v=2"></script>
 </body>
 </html>
